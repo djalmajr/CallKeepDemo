@@ -94,7 +94,7 @@ const App = () => {
        * - `userInfo`  : An optional object containing additional notification data.
        */
       VoipPushNotification.presentLocalNotification({
-        alertBody: 'hello! ' + notification.getMessage(),,
+        alertBody: 'hello! ' + notification.getMessage(),
       });
     });
   }, []);

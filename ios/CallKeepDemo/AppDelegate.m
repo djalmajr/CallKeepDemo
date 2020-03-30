@@ -70,9 +70,29 @@ static void InitializeFlipper(UIApplication *application) {
               restorationHandler:restorationHandler];
 }
 
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+
+  const unsigned *tokenBytes = [deviceToken bytes];
+
+  NSString *tkn = [NSString stringWithFormat:@"%08x%08x%08x%08x%08x%08x%08x%08x",
+    ntohl(tokenBytes[0]), ntohl(tokenBytes[1]), ntohl(tokenBytes[2]),
+    ntohl(tokenBytes[3]), ntohl(tokenBytes[4]), ntohl(tokenBytes[5]),
+    ntohl(tokenBytes[6]), ntohl(tokenBytes[7])];
+
+  NSString *tokenDesc = [[[UIDevice currentDevice] systemVersion] floatValue] >= 13.0 ? [deviceToken debugDescription] : [deviceToken description];
+  NSString *token = [tokenDesc stringByTrimmingCharactersInSet: [NSCharacterSet characterSetWithCharactersInString:@"<>"]];
+
+  token = [token stringByReplacingOccurrencesOfString:@" " withString:@""];
+
+  NSLog(@"[AppDelegate] didRegisterForRemoteNotificationsWithDeviceToken deviceToken = %@, tkn = %@", token, tkn);
+}
+
 // --- Handle updated push credentials
 - (void)pushRegistry:(PKPushRegistry *)registry didUpdatePushCredentials:(PKPushCredentials *)credentials forType:(PKPushType)type {
   // Register VoIP push token (a property of PKPushCredentials) with server
+  NSData* deviceToken = credentials.token;
+  NSString* token = [NSString stringWithFormat:@"%@", deviceToken];
+  NSLog(@"[AppDelegate] didUpdatePushCredentials deviceToken = %@, type = %@", token, type);
   [RNVoipPushNotificationManager didUpdatePushCredentials:credentials forType:(NSString *)type];
 }
 
